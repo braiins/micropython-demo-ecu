@@ -1,0 +1,4 @@
+Import('env')
+
+env.QstrFeatureObject(source=['platform_settings.c'])
+

@@ -1,0 +1,75 @@
+menu "demo-ecu"
+
+
+config APP_MICROPYTHON_TASK_STACK_SIZE
+       int "MP task stack size"
+       default 6656
+
+config APP_MICROPYTHON_TASK_PRIORITY
+       int "MP Task prio"
+       default 2
+
+
+menu "Sensors task configuration "
+config APP_SENSORS_TASK_STACK_SIZE
+       int "Stack size (bytes)"
+       default 800
+
+config APP_SENSORS_TASK_PRIORITY
+       int "Task priority"
+       default 3
+
+config APP_GPS_UART_PORT
+       int "GPS UART port"
+
+config APP_GPS_UART_BAUD
+       int "GPS baud rate"
+       default 38400
+
+config APP_SENSORS_SLOW_SAMPLE_PERIOD_MS
+       int "Sampling period for slow sensors"
+endmenu
+
+
+menu "RC receiver communication task configuration "
+config APP_RC_RECEIVER_TASK_STACK_SIZE
+       int "Stack size (bytes)"
+       default 800
+
+config APP_RC_RECEIVER_TASK_PRIORITY
+       int "Task priority"
+       default 3
+
+config APP_RC_RECEIVER_UART_PORT
+       int "UART port connected to RC receiver"
+
+
+endmenu
+
+
+menu "RPM task configuration"
+config APP_RPM_TASK_STACK_SIZE
+       int "Stack size (bytes)"
+       default 800
+
+config APP_RPM_TASK_PRIORITY
+       int "Task priority"
+       default 3
+
+config APP_RPM_INPUT_CAPTURE
+       int "Input capture channel"
+
+config APP_RPM_TIMER
+       int "Input capture base timer"
+
+config APP_RPM_SAMPLING_PERIOD_MS
+       int "RPM sampling period (ms)"
+       default 25
+
+config APP_RPM_MAX_PERIOD_LIMIT_MS
+       int "Maximum supported period of the measured signal (ms)"
+       default 1000
+
+endmenu
+
+endmenu
