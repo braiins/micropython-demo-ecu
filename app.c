@@ -98,12 +98,12 @@ extern const struct ntc_thermistor__coeff ntc_thermistor_10k_coeff;
 extern const struct ntc_thermistor__config temp1_sensor_config;
 */
 static const struct jeti_ex_sensor__descr jeti_ex_descriptors[] = {
-  JETI_EX_SENSOR__DESCR_INIT("ECU test", "", 0, 0),
-  JETI_EX_SENSOR__DESCR_INIT("RPM", "\xb0\x43", JETI_EX__TYPE_22b, 0),
-  JETI_EX_SENSOR__DESCR_INIT("Speed", "km/h", JETI_EX__TYPE_14b, 0),
-  JETI_EX_SENSOR__DESCR_INIT("ExTemp.", "\xb0\x43", JETI_EX__TYPE_14b, 1),
-  JETI_EX_SENSOR__DESCR_INIT("Pipe", "%", JETI_EX__TYPE_14b, 0),
-  JETI_EX_SENSOR__DESCR_INIT("Mixture", "%", JETI_EX__TYPE_14b, 0),
+  JETI_EX_SENSOR__DESCR_INIT("ECU", "", 0, 0),
+  JETI_EX_SENSOR__DESCR_INIT("revolution", "rpm", JETI_EX__TYPE_22b, 0),
+  JETI_EX_SENSOR__DESCR_INIT("gps-speed", "km/h", JETI_EX__TYPE_14b, 1),
+  JETI_EX_SENSOR__DESCR_INIT("egt", "\xb0\x43", JETI_EX__TYPE_14b, 1),
+  JETI_EX_SENSOR__DESCR_INIT("temp. A", "Cels.", JETI_EX__TYPE_14b, 0),
+  JETI_EX_SENSOR__DESCR_INIT("servo", "%", JETI_EX__TYPE_14b, 0),
 };
 enum {
   RPM = 1,
