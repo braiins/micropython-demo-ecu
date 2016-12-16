@@ -1,0 +1,84 @@
+mainmenu "Toplevel Project Configuration"
+
+
+config FREERTOS_DIR
+       string
+       default "../../freertos"
+
+config FREERTOS_DRIVERS_DIR
+       string
+       default "../../freertos-drivers"
+
+config LIB_RTOS_DIR
+       string
+       default "../../lib-rtos"
+
+config LIB_ALGORITHMS_DIR
+       string
+       default "../../lib-algorithms"
+
+config LIB_DAQ_DIR
+       string
+       default "../../lib-daq"
+
+config LIB_IC_DIR
+       string
+       default "../../lib-ic"
+
+config LIB_NMEA_DIR
+       string
+       default "../../lib-nmea"
+
+config LIB_RC_DIR
+       string
+       default "../../lib-rc"
+
+config STELLARISWARE_DIR
+       string
+       default "../../stellarisware"
+
+config STELLARISWARE_DRIVERS_DIR
+       string
+       default "../../stellarisware-drivers"
+
+config STM32_HAL_DIR
+       string
+       default "../../stm32-hal"
+
+config STM32_CMSIS_DIR
+       string
+       default "../../stm32-cmsis"
+
+config LIBC_BACKEND_DIR
+       string
+       default "../../libc-backend"
+
+config MICROPYTHON_DIR
+       string
+       default "../../micropython"
+
+config MICROPYTHON_FREERTOS_HAL_DIR
+       string
+       default "../../micropython-freertos-hal"
+
+config BSP_DIR
+       string
+       default "../../bsp"
+
+config LIB_COBJS_DIR
+       string
+       default "../../lib-cobjs"
+
+
+source "$FREERTOS_DIR/Kconfig"
+source "$FREERTOS_DRIVERS_DIR/Kconfig"
+source "$LIB_RTOS_DIR/Kconfig"
+source "$LIB_ALGORITHMS_DIR/Kconfig"
+source "$LIB_DAQ_DIR/Kconfig"
+source "$LIB_IC_DIR/Kconfig"
+source "$LIB_RC_DIR/Kconfig"
+source "$STM32_HAL_DIR/Kconfig"
+source "$MICROPYTHON_DIR/Kconfig"
+source "$MICROPYTHON_FREERTOS_HAL_DIR/Kconfig"
+source "$BSP_DIR/Kconfig"
+source "Kconfig"
