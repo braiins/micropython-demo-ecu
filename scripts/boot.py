@@ -138,8 +138,8 @@ while True:
         log_file.flush()
         lines_written = 0
 
-    a.jeti_ex_sensors(a.rpm(), speed, int(temp1[1]*10),
-                      pipe_length_telem_data[0], rc_channels[1])
+    a.jeti_ex_sensors((a.rpm(), int(speed*10), int(temp1[1]*10),
+                      pipe_length_telem_data[0], rc_channels[1]))
     # Sleep for the rest of this 20ms slot
     hal.sleep_until_ms(time_stamp, 20)
 
