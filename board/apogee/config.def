@@ -2,22 +2,23 @@
 # Automatically generated file; DO NOT EDIT.
 # Toplevel Project Configuration
 #
-CONFIG_FREERTOS_DIR="/home/jca/work/braiins/projects/devel/micropython/freertos-integration-test/freertos"
-CONFIG_FREERTOS_DRIVERS_DIR="/home/jca/work/braiins/projects/devel/micropython/freertos-integration-test/freertos-drivers"
-CONFIG_LIB_RTOS_DIR="/home/jca/work/braiins/projects/devel/micropython/freertos-integration-test/lib-rtos"
-CONFIG_LIB_DAQ_DIR="/home/jca/work/braiins/projects/devel/micropython/freertos-integration-test/lib-daq"
-CONFIG_LIB_IC_DIR="/home/jca/work/braiins/projects/devel/micropython/freertos-integration-test/lib-ic"
-CONFIG_LIB_NMEA_DIR="/home/jca/work/braiins/projects/devel/micropython/freertos-integration-test/lib-nmea"
-CONFIG_LIB_RC_DIR="/home/jca/work/braiins/projects/devel/micropython/freertos-integration-test/lib-rc"
-CONFIG_STELLARISWARE_DIR="/home/jca/work/braiins/projects/devel/micropython/freertos-integration-test/stellarisware"
-CONFIG_STELLARISWARE_DRIVERS_DIR="/home/jca/work/braiins/projects/devel/micropython/freertos-integration-test/stellarisware-drivers"
-CONFIG_STM32_HAL_DIR="/home/jca/work/braiins/projects/devel/micropython/freertos-integration-test/stm32-hal"
-CONFIG_STM32_CMSIS_DIR="/home/jca/work/braiins/projects/devel/micropython/freertos-integration-test/stm32-cmsis"
-CONFIG_LIBC_BACKEND_DIR="/home/jca/work/braiins/projects/devel/micropython/freertos-integration-test/libc-backend"
-CONFIG_MICROPYTHON_DIR="/home/jca/work/braiins/projects/devel/micropython/freertos-integration-test/micropython"
-CONFIG_MICROPYTHON_FREERTOS_HAL_DIR="/home/jca/work/braiins/projects/devel/micropython/freertos-integration-test/micropython-freertos-hal"
-CONFIG_BSP_DIR="/home/jca/work/braiins/projects/devel/micropython/freertos-integration-test/bsp"
-CONFIG_LIB_COBJS_DIR="/home/jca/work/braiins/projects/devel/micropython/freertos-integration-test/lib-cobjs"
+CONFIG_FREERTOS_DIR="../../freertos"
+CONFIG_FREERTOS_DRIVERS_DIR="../../freertos-drivers"
+CONFIG_LIB_RTOS_DIR="../../lib-rtos"
+CONFIG_LIB_ALGORITHMS_DIR="../../lib-algorithms"
+CONFIG_LIB_DAQ_DIR="../../lib-daq"
+CONFIG_LIB_IC_DIR="../../lib-ic"
+CONFIG_LIB_NMEA_DIR="../../lib-nmea"
+CONFIG_LIB_RC_DIR="../../lib-rc"
+CONFIG_STELLARISWARE_DIR="../../stellarisware"
+CONFIG_STELLARISWARE_DRIVERS_DIR="../../stellarisware-drivers"
+CONFIG_STM32_HAL_DIR="../../stm32-hal"
+CONFIG_STM32_CMSIS_DIR="../../stm32-cmsis"
+CONFIG_LIBC_BACKEND_DIR="../../libc-backend"
+CONFIG_MICROPYTHON_DIR="../../micropython"
+CONFIG_MICROPYTHON_FREERTOS_HAL_DIR="../../micropython-freertos-hal"
+CONFIG_BSP_DIR="../../bsp"
+CONFIG_LIB_COBJS_DIR="../../lib-cobjs"
 
 #
 # freertos
@@ -107,7 +108,7 @@ CONFIG_FREERTOS_DRIVERS_UART_2=y
 # CONFIG_FREERTOS_DRIVERS_UART_3 is not set
 CONFIG_FREERTOS_DRIVERS_UART_4=y
 # CONFIG_FREERTOS_DRIVERS_UART_5 is not set
-# CONFIG_FREERTOS_DRIVERS_UART_6 is not set
+CONFIG_FREERTOS_DRIVERS_UART_6=y
 CONFIG_FREERTOS_DRIVERS_ARCH_HAVE_UART=y
 CONFIG_FREERTOS_DRIVERS_ARCH_HAVE_UART_1=y
 CONFIG_FREERTOS_DRIVERS_ARCH_HAVE_UART_2=y
@@ -181,6 +182,13 @@ CONFIG_LIB_RTOS_ASSERT="assert"
 CONFIG_LIB_RTOS_UNIT_TESTS=y
 
 #
+# lib-algorithms
+#
+CONFIG_LIB_ALGORITHMS_CRC=y
+CONFIG_LIB_ALGORITHMS_CRC_VALUE_SIZE_BITS=16
+# CONFIG_LIB_ALGORITHMS_CRC_16_ANSI_LSB is not set
+
+#
 # lib-daq
 #
 CONFIG_LIB_DAQ_DST_GAUGE=y
@@ -211,9 +219,12 @@ CONFIG_LIB_IC_THERMOCOUPLE_IC_MAX_TCDC_BACKEND="gpio"
 #
 # lib-rc
 #
-CONFIG_LIB_RC_RC_CHANNELS_MAX_COUNT=12
+CONFIG_LIB_RC_RC_CHANNELS_MAX_COUNT=16
 # CONFIG_LIB_RC_MULTIPLEX is not set
 CONFIG_LIB_RC_JETI=y
+CONFIG_LIB_RC_JETI_UDI=y
+CONFIG_LIB_RC_JETI_EXBUS=y
+CONFIG_LIB_RC_JETI_EX_TELEMETRY=y
 CONFIG_LIB_RC_SERVO=y
 
 #
@@ -269,6 +280,7 @@ CONFIG_MICROPYTHON_UTILS=y
 #
 CONFIG_MICROPYTHON_FREERTOS_HAL_HEAP_SIZE=16384
 CONFIG_MICROPYTHON_FREERTOS_HAL_BOARD_NAME="apogee"
+CONFIG_MICROPYTHON_FREERTOS_HAL_FUSERMOUNT=y
 
 #
 # STDIO UART console
@@ -281,6 +293,8 @@ CONFIG_MICROPYTHON_FREERTOS_HAL_STDIO_UART_BAUD=115200
 #
 CONFIG_MICROPYTHON_FREERTOS_HAL_GPIO=y
 CONFIG_MICROPYTHON_FREERTOS_HAL_SD=y
+CONFIG_MICROPYTHON_FREERTOS_HAL_FATFS=y
+CONFIG_MICROPYTHON_FREERTOS_HAL_FATFS_VOLUMES=3
 CONFIG_MICROPYTHON_FREERTOS_HAL_UART=y
 
 #
@@ -298,7 +312,7 @@ CONFIG_APP_MICROPYTHON_TASK_PRIORITY=2
 #
 # Sensors task configuration
 #
-CONFIG_APP_SENSORS_TASK_STACK_SIZE=800
+CONFIG_APP_SENSORS_TASK_STACK_SIZE=1200
 CONFIG_APP_SENSORS_TASK_PRIORITY=3
 CONFIG_APP_GPS_UART_PORT=4
 CONFIG_APP_GPS_UART_BAUD=38400
@@ -309,7 +323,7 @@ CONFIG_APP_SENSORS_SLOW_SAMPLE_PERIOD_MS=250
 #
 CONFIG_APP_RC_RECEIVER_TASK_STACK_SIZE=800
 CONFIG_APP_RC_RECEIVER_TASK_PRIORITY=3
-CONFIG_APP_RC_RECEIVER_UART_PORT=2
+CONFIG_APP_RC_RECEIVER_UART_PORT=6
 
 #
 # RPM task configuration
