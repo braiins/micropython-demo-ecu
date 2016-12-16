@@ -10,7 +10,7 @@ config APP_MICROPYTHON_TASK_PRIORITY
        default 2
 
 
-menu "Sensors task configuration "
+menu "Sensors task configuration"
 config APP_SENSORS_TASK_STACK_SIZE
        int "Stack size (bytes)"
        default 800
@@ -31,7 +31,7 @@ config APP_SENSORS_SLOW_SAMPLE_PERIOD_MS
 endmenu
 
 
-menu "RC receiver communication task configuration "
+menu "RC receiver communication task configuration"
 config APP_RC_RECEIVER_TASK_STACK_SIZE
        int "Stack size (bytes)"
        default 800
