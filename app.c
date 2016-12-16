@@ -110,8 +110,8 @@ enum {
   SPEED,
   EX_TEMP,
   PIPE,
-  MIXTURE,
-  LAST_JETI_EX_SENSOR
+  //MIXTURE,
+  APP__JETI_EX_SENSOR_COUNT
 };
 static struct jeti_ex_sensor jeti_ex_sensors[] = {
   {
@@ -170,7 +170,8 @@ void app__sensors_task(struct app *self)
   self->tc = ic_max31855__new(tc_backend);
   assert_ptr(self->tc);
 
-  jeti_ex = jeti_ex__new(jeti_ex_sensors, LAST_JETI_EX_SENSOR, 0xa8a1, 0x555d);
+  jeti_ex = jeti_ex__new(jeti_ex_sensors, APP__JETI_EX_SENSOR_COUNT, 0xa400,
+                         0x0001);
   assert_ptr(jeti_ex);
 #if 0
   temp1_sensor_adc =
@@ -545,10 +546,10 @@ STATIC mp_obj_t app__set_jeti_ex_sensors(mp_obj_t self_in, mp_obj_t tuple)
 
   mp_obj_get_array(tuple, &len, &elem);
 
-  if (len != (LAST_JETI_EX_SENSOR - 1)) {
+  if (len != (APP__JETI_EX_SENSOR_COUNT - 1)) {
     nlr_raise(mp_obj_new_exception_msg_varg(&mp_type_TypeError, "exactly  %d "
-      "elements for each pipe table entry expected (%d given)",
-                                            LAST_JETI_EX_SENSOR - 1, len));
+      "sensor values expected (%d given)",
+                                            APP__JETI_EX_SENSOR_COUNT - 1, len));
   }
   for(i = 0; i < len; i++) {
     jeti_ex_sensors[i + 1].value = mp_obj_get_int(elem[i]);
