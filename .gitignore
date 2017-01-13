@@ -1,3 +1,4 @@
-.config
-.config.old
+.sconsign.dblite
+config.py
+.config*
 build*/
