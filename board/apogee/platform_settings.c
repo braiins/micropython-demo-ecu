@@ -132,8 +132,10 @@ const mp_obj_module_t bsp_module = {
 /** RPM measurement on SRV5 connector */
 /* RPM input capture uses Timer 2, channel 1 */
 PLATFORM_INPUT_CAPTURE__INIT(0, 2, 1);
-/* Port A, pin 15, alternate function 1 */
-PLATFORM_INPUT_CAPTURE_CONFIG__INIT_GPIO_CFG(0, 2, A, 15, 1);
+/* Port A, pin 15, alternate function 1 -> Enable on-chip pullup *
+ * resistor since the HAL sensor connected to the rpm input capture is
+ * open collector */
+PLATFORM_INPUT_CAPTURE_CONFIG__INIT_GPIO_CFG(0, 2, A, 15, 1, PULLUP);
 
 /* Configuration for input capture channel */
 const struct platform_timer_config rpm_input_capture_timer_cfg = {
