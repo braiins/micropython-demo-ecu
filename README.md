@@ -15,3 +15,10 @@ be built.
 $ cp board/apogee/config.def ./.config
 $ scons
 ```
+
+This results in building the configuration python module. Follow the
+instructions and rerun the build:
+
+```
+$ scons
+```
