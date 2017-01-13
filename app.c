@@ -119,23 +119,23 @@ static struct jeti_ex_sensor jeti_ex_sensors[] = {
     .descr = &jeti_ex_descriptors[0],
   },
   {
-    .value = 0,
+    .value = 10,
     .descr = &jeti_ex_descriptors[1],
   },
   {
-    .value = 0,
+    .value = 20,
     .descr = &jeti_ex_descriptors[2],
   },
   {
-    .value = 0,
+    .value = 30,
     .descr = &jeti_ex_descriptors[3],
   },
   {
-    .value = 0,
+    .value = 40,
     .descr = &jeti_ex_descriptors[4],
   },
   {
-    .value = 0,
+    .value = 50,
     .descr = &jeti_ex_descriptors[5],
   }
 };
@@ -329,7 +329,7 @@ void app__engine_control_task(struct app *self)
   self->pipe_length_idx = 0;
 
   pipe_srv = servo__new(3, &srv_pwm_cfg, CONFIG_APP_SRV_PWM_CLOCK,
-			-1600, 1600);
+			-4400, 4400);
 
   assert_ptr(pipe_srv);
 
@@ -343,12 +343,19 @@ void app__engine_control_task(struct app *self)
       bool auto_control = false;
       int auto_control_value = rc_channels__get(&self->rc_receiver->last_servo_positions, 6);
       int throttle_value = rc_channels__get(&self->rc_receiver->last_servo_positions, 2);
-      if ((auto_control_value > 500) && (auto_control_value < 2048)) {
-        auto_control = true;
-      } else {
+      /* TODO: move the hardcoded ranges into configuration file */
+      if (auto_control_value < -500) {
         servo__set_position(pipe_srv,
                             rc_channels__get(&self->rc_receiver->last_servo_positions,
                                              self->pipe_ctl_channel_num));
+      }
+      else if ((auto_control_value > -500) &&
+	       (auto_control_value < 500)) {
+        auto_control = true;
+	/* calibration */
+      }
+      else if (auto_control_value > 500) {
+        auto_control = true;
       }
 
       last_pipe_length_idx = self->pipe_length_idx;
