@@ -103,16 +103,14 @@ static const struct jeti_ex_sensor__descr jeti_ex_descriptors[] = {
   JETI_EX_SENSOR__DESCR_INIT("gps-speed", "km/h", JETI_EX__TYPE_14b, 1),
   JETI_EX_SENSOR__DESCR_INIT("egt", "\xb0\x43", JETI_EX__TYPE_14b, 1),
   JETI_EX_SENSOR__DESCR_INIT("temp. A", "Cels.", JETI_EX__TYPE_14b, 0),
-  JETI_EX_SENSOR__DESCR_INIT("servo", "%", JETI_EX__TYPE_14b, 0),
+  JETI_EX_SENSOR__DESCR_INIT("mixture", "%", JETI_EX__TYPE_14b, 0),
+  JETI_EX_SENSOR__DESCR_INIT("glowplug", "", JETI_EX__TYPE_14b, 0),
+  JETI_EX_SENSOR__DESCR_INIT("pipe", "%", JETI_EX__TYPE_14b, 0),
+  JETI_EX_SENSOR__DESCR_INIT("P1", "", JETI_EX__TYPE_14b, 3),
+  JETI_EX_SENSOR__DESCR_INIT("I1", "", JETI_EX__TYPE_14b, 3),
+  JETI_EX_SENSOR__DESCR_INIT("D1", "", JETI_EX__TYPE_14b, 3),
 };
-enum {
-  RPM = 1,
-  SPEED,
-  EX_TEMP,
-  PIPE,
-  //MIXTURE,
-  APP__JETI_EX_SENSOR_COUNT
-};
+
 static struct jeti_ex_sensor jeti_ex_sensors[] = {
   {
     .value = 0,
@@ -137,8 +135,36 @@ static struct jeti_ex_sensor jeti_ex_sensors[] = {
   {
     .value = 50,
     .descr = &jeti_ex_descriptors[5],
+  },
+  {//glowplug
+    .value = 2,
+    .descr = &jeti_ex_descriptors[6],
+  },
+  {//pipe
+    .value = 10,
+    .descr = &jeti_ex_descriptors[7],
+  },
+  {//P
+    .value = 4,
+    .descr = &jeti_ex_descriptors[8],
+  },
+  {//I
+    .value = 6,
+    .descr = &jeti_ex_descriptors[9],
+  },
+  {//D
+    .value = 1,
+    .descr = &jeti_ex_descriptors[10],
   }
+
+
 };
+
+enum {
+  APP__JETI_EX_SENSOR_COUNT =
+  sizeof(jeti_ex_sensors) / sizeof(struct jeti_ex_sensor),
+};
+
 static uint8_t ex_msg[JETI_EX__MAX_MESSAGE_SIZE];
 
 
