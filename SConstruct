@@ -29,5 +29,5 @@ global_env = Environment(CROSS_COMPILE='arm-none-eabi-',
                          VARIANT_DIR='build')
 Export('global_env')
 
-global_env.Tool('sbbs', toolpath=[os.path.join('..', '..', 'sbbs/')])
+global_env.Tool('pila', toolpath=[os.path.join('..', '..', 'pila/')])
 global_env.LoadBuildEnv(setup_build_env)
