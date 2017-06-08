@@ -22,3 +22,24 @@ instructions and rerun the build:
 ```
 $ scons
 ```
+
+
+Alternatively, it is possible to explicitely trigger the configuration tool via
+the *conf* target:
+
+```
+$ scons conf
+```
+
+## Docker setup
+
+```
+cp board/apogee/config.def ./.config
+cd docker
+./build-demo-in-docker.sh
+```
+
+
+# Output firmware
+
+Either step will generate the firmware image in ```build/firmware.elf``` - relative to the project top-level directory.
