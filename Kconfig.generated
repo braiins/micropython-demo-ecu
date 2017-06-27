@@ -33,14 +33,6 @@ config LIB_RC_DIR
        string
        default "../../lib-rc"
 
-config STELLARISWARE_DIR
-       string
-       default "../../stellarisware"
-
-config STELLARISWARE_DRIVERS_DIR
-       string
-       default "../../stellarisware-drivers"
-
 config STM32_HAL_DIR
        string
        default "../../stm32-hal"
