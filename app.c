@@ -81,8 +81,13 @@ int app__init(struct app *self)
     self->pipe_table[i].rpm = 0;
     self->pipe_table[i].srv_position = 0;
   }
+  // TODO: servo range configuration from SD config?
+  self->mixture_srv = servo__new(2, &srv_pwm_cfg, CONFIG_APP_SRV_PWM_CLOCK,
+				 -4400, 4400);
 
-  task_creation_failed:
+  assert_ptr(self->mixture_srv);
+
+ task_creation_failed:
   return result;
 }
 
@@ -643,6 +648,24 @@ STATIC mp_obj_t app__get_rc_channels(mp_obj_t self_in)
 STATIC MP_DEFINE_CONST_FUN_OBJ_1(app__get_rc_channels_obj,
                                  app__get_rc_channels);
 
+
+/**
+ * \method set_mixture_valve()
+ *
+ * Return value: nothing
+ */
+STATIC mp_obj_t app__set_mixture_valve(mp_obj_t self_in, mp_obj_t srv_position)
+{
+  app__obj_t *self = MP_OBJ_TO_PTR(self_in);
+
+  servo__set_position(self->app.mixture_srv,
+		      mp_obj_get_int(srv_position));
+
+  return mp_const_none;
+}
+STATIC MP_DEFINE_CONST_FUN_OBJ_2(app__set_mixture_valve_obj, app__set_mixture_valve);
+
+
 STATIC const mp_rom_map_elem_t app__locals_dict_table[] = {
   { MP_ROM_QSTR(MP_QSTR_rpm), MP_ROM_PTR(&app__get_rpm_obj) },
   { MP_ROM_QSTR(MP_QSTR_full_throttle_threshold), MP_ROM_PTR(&app__set_full_throttle_threshold_obj) },
@@ -654,6 +677,7 @@ STATIC const mp_rom_map_elem_t app__locals_dict_table[] = {
   { MP_ROM_QSTR(MP_QSTR_gps), MP_ROM_PTR(&app__get_gps_obj) },
   { MP_ROM_QSTR(MP_QSTR_gps_datetime), MP_ROM_PTR(&app__get_gps_datetime_obj) },
   { MP_ROM_QSTR(MP_QSTR_rc_channels), MP_ROM_PTR(&app__get_rc_channels_obj) },
+  { MP_ROM_QSTR(MP_QSTR_set_mixture_valve), MP_ROM_PTR(&app__set_mixture_valve_obj) },
 };
 
 STATIC MP_DEFINE_CONST_DICT(app__locals_dict, app__locals_dict_table);

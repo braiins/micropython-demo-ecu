@@ -83,6 +83,11 @@ const struct platform_pwm_config srv_pwm_cfg = {
 };
 
 
+/* SRV2 output index 2, TIM3, port B, pin 5, alternate function 2 */
+PLATFORM_PWM_CONFIG__INIT_GPIO_CFG(2, 3, B, 5, 2);
+/* TIM3, channel 2 */
+PLATFORM_PWM__INIT(2, 3, 2);
+
 /* SRV3 output index 3, TIM3, port B, pin 4, alternate function 2 */
 PLATFORM_PWM_CONFIG__INIT_GPIO_CFG(3, 3, B, 4, 2);
 /* TIM3, channel 1 */

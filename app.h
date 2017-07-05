@@ -60,6 +60,9 @@ struct app {
   /** Thermocouple temperature measurement */
   struct ic_max31855 *tc;
 
+  /** Servo instance for controlling the needle valve */
+  struct servo *mixture_srv;
+
   int full_throttle_threshold;
 
   /** Pipe control channel number */
