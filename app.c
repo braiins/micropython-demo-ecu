@@ -83,7 +83,7 @@ int app__init(struct app *self)
   }
   // TODO: servo range configuration from SD config?
   self->mixture_srv = servo__new(2, &srv_pwm_cfg, CONFIG_APP_SRV_PWM_CLOCK,
-				 -4400, 4400);
+                                 -4400, 4400);
 
   assert_ptr(self->mixture_srv);
 
@@ -210,8 +210,8 @@ void app__sensors_task(struct app *self)
              &temp1_sensor_adc_cfg);
   assert_ptr(temp1_sensor_adc);
   temp1_sensor = ntc_thermistor__new(temp1_sensor_adc,
-  				     &ntc_thermistor_10k_coeff,
-				     &temp1_sensor_config);
+                                     &ntc_thermistor_10k_coeff,
+                                     &temp1_sensor_config);
 #endif
 
   ic_gtpa_010__disable(self->gps);
@@ -230,7 +230,7 @@ void app__sensors_task(struct app *self)
     now = time__get_os_tick_count();
     /*ic_max31855__read_temp_float(self->tc, &self->tc_temp_float);*/
     if (time__is_after_eq(now, last_slow_sensors_sample_time +
-			  TIME__MS_TO_OS_TICKS(CONFIG_APP_SENSORS_SLOW_SAMPLE_PERIOD_MS))) {
+                          TIME__MS_TO_OS_TICKS(CONFIG_APP_SENSORS_SLOW_SAMPLE_PERIOD_MS))) {
       last_slow_sensors_sample_time = now;
 #if 0
       self->telemetry_data.tc_temp_status =
@@ -254,7 +254,7 @@ void app__sensors_task(struct app *self)
       /* Send labels every 500 ms */
 #if 1
       if (time__is_after_eq(now, last_telem_labels_tx_time +
-			  TIME__MS_TO_OS_TICKS(500))) {
+                          TIME__MS_TO_OS_TICKS(500))) {
         last_telem_labels_tx_time = now;
         retval = jeti_ex__create_text_message(jeti_ex, ex_msg,
                                               JETI_EX__MAX_MESSAGE_SIZE,
@@ -360,14 +360,13 @@ void app__engine_control_task(struct app *self)
   self->pipe_length_idx = 0;
 
   pipe_srv = servo__new(3, &srv_pwm_cfg, CONFIG_APP_SRV_PWM_CLOCK,
-			-4400, 4400);
-
+                        -4400, 4400);
   assert_ptr(pipe_srv);
 
   now = time__get_os_tick_count();
   while (1) {
     now = task__sleep_until(now,
-			    TIME__MS_TO_OS_TICKS(10));
+                            TIME__MS_TO_OS_TICKS(10));
     unsigned int rpm = rpm__get(&self->rpm);
 
     if (self->pipe_ctl_channel_num != -1) {
@@ -381,9 +380,9 @@ void app__engine_control_task(struct app *self)
                                              self->pipe_ctl_channel_num));
       }
       else if ((auto_control_value > -500) &&
-	       (auto_control_value < 500)) {
+               (auto_control_value < 500)) {
         auto_control = true;
-	/* calibration */
+        /* calibration */
       }
       else if (auto_control_value > 500) {
         auto_control = true;
@@ -564,10 +563,10 @@ STATIC mp_obj_t app__set_pipe_table_entry(mp_obj_t self_in, mp_obj_t tuple)
   idx = mp_obj_get_int(elem[0]);
   if ((idx < 0) || (idx >= CONFIG_APP_TUNED_PIPE_TABLE_SIZE)) {
       nlr_raise(
-		mp_obj_new_exception_msg_varg(&mp_type_ValueError,
-					      "Index %d for pipe table out of range, allowed 0-%d",
-					      idx,
-					      CONFIG_APP_TUNED_PIPE_TABLE_SIZE));
+                mp_obj_new_exception_msg_varg(&mp_type_ValueError,
+                                              "Index %d for pipe table out of range, allowed 0-%d",
+                                              idx,
+                                              CONFIG_APP_TUNED_PIPE_TABLE_SIZE));
   }
   self->app.pipe_table[idx].rpm = mp_obj_get_int(elem[1]);
   self->app.pipe_table[idx].srv_position = mp_obj_get_int(elem[2]);
@@ -659,7 +658,7 @@ STATIC mp_obj_t app__set_mixture_valve(mp_obj_t self_in, mp_obj_t srv_position)
   app__obj_t *self = MP_OBJ_TO_PTR(self_in);
 
   servo__set_position(self->app.mixture_srv,
-		      mp_obj_get_int(srv_position));
+                      mp_obj_get_int(srv_position));
 
   return mp_const_none;
 }
@@ -719,9 +718,9 @@ STATIC mp_obj_t app__make_new(const mp_obj_type_t *type, size_t n_args,
     status = app__init(&app__instance.app);
     if (status != E_OK) {
       nlr_raise(
-		mp_obj_new_exception_msg_varg(&mp_type_ValueError,
-					      "Application initialization failed (%d)",
-					      status));
+                mp_obj_new_exception_msg_varg(&mp_type_ValueError,
+                                              "Application initialization failed (%d)",
+                                              status));
     }
     app__instance.initialized = true;
   }
