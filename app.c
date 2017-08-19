@@ -102,66 +102,59 @@ extern const struct platform_adc_config temp1_sensor_adc_cfg;
 extern const struct ntc_thermistor__coeff ntc_thermistor_10k_coeff;
 extern const struct ntc_thermistor__config temp1_sensor_config;
 */
-static const struct jeti_ex_sensor__descr jeti_ex_descriptors[] = {
-  JETI_EX_SENSOR__DESCR_INIT("ECU", "", 0, 0),
-  JETI_EX_SENSOR__DESCR_INIT("revolution", "rpm", JETI_EX__TYPE_22b, 0),
-  JETI_EX_SENSOR__DESCR_INIT("gps-speed", "km/h", JETI_EX__TYPE_14b, 1),
-  JETI_EX_SENSOR__DESCR_INIT("egt", "\xb0\x43", JETI_EX__TYPE_14b, 1),
-  JETI_EX_SENSOR__DESCR_INIT("temp. A", "Cels.", JETI_EX__TYPE_14b, 0),
-  JETI_EX_SENSOR__DESCR_INIT("mixture", "%", JETI_EX__TYPE_14b, 0),
-  JETI_EX_SENSOR__DESCR_INIT("glowplug", "", JETI_EX__TYPE_14b, 0),
-  JETI_EX_SENSOR__DESCR_INIT("pipe", "%", JETI_EX__TYPE_14b, 0),
-  JETI_EX_SENSOR__DESCR_INIT("P1", "", JETI_EX__TYPE_14b, 3),
-  JETI_EX_SENSOR__DESCR_INIT("I1", "", JETI_EX__TYPE_14b, 3),
-  JETI_EX_SENSOR__DESCR_INIT("D1", "", JETI_EX__TYPE_14b, 3),
-};
 
 static struct jeti_ex_sensor jeti_ex_sensors[] = {
   {
     .value = 0,
-    .descr = &jeti_ex_descriptors[0],
-  },
-  {
-    .value = 10,
-    .descr = &jeti_ex_descriptors[1],
-  },
-  {
-    .value = 20,
-    .descr = &jeti_ex_descriptors[2],
-  },
-  {
-    .value = 30,
-    .descr = &jeti_ex_descriptors[3],
-  },
-  {
-    .value = 40,
-    .descr = &jeti_ex_descriptors[4],
-  },
-  {
-    .value = 50,
-    .descr = &jeti_ex_descriptors[5],
-  },
-  {//glowplug
-    .value = 2,
-    .descr = &jeti_ex_descriptors[6],
-  },
-  {//pipe
-    .value = 10,
-    .descr = &jeti_ex_descriptors[7],
-  },
-  {//P
-    .value = 4,
-    .descr = &jeti_ex_descriptors[8],
-  },
-  {//I
-    .value = 6,
-    .descr = &jeti_ex_descriptors[9],
-  },
-  {//D
-    .value = 1,
-    .descr = &jeti_ex_descriptors[10],
-  }
+    .descr = &JETI_EX_SENSOR__DESCR("ECU", "", 0, 0),
 
+  },
+  {
+    .value = 0,
+    .descr = &JETI_EX_SENSOR__DESCR("revolution", "rpm", JETI_EX__TYPE_22b, 0),
+  },
+  {
+    .value = 0,
+    .descr = &JETI_EX_SENSOR__DESCR("gps-speed", "km/h", JETI_EX__TYPE_14b, 1),
+
+  },
+  {
+    .value = 0,
+    .descr = &JETI_EX_SENSOR__DESCR("egt", "\xb0\x43", JETI_EX__TYPE_14b, 1),
+  },
+#if 0
+  {
+    .value = 0,
+    .descr = &JETI_EX_SENSOR__DESCR("temp. A", "Cels.", JETI_EX__TYPE_14b, 1),
+  },
+  {
+    .value = 0,
+    .descr = &JETI_EX_SENSOR__DESCR("mixture", "%", JETI_EX__TYPE_14b, 1),
+  },
+#endif
+  {
+    .value = 0,
+    .descr = &JETI_EX_SENSOR__DESCR("pipe", "%", JETI_EX__TYPE_14b, 0),
+  },
+#if 0
+  {
+    .value = 0,
+    .descr = &JETI_EX_SENSOR__DESCR("p 1", "", JETI_EX__TYPE_14b, 3),
+  },
+
+  {
+    .value = 0,
+    .descr = &JETI_EX_SENSOR__DESCR("i 1", "", JETI_EX__TYPE_14b, 3),
+  },
+  {
+    .value = 0,
+    .descr = &JETI_EX_SENSOR__DESCR("d 1", "", JETI_EX__TYPE_14b, 3),
+  },
+  {
+    .value = 0,
+    .descr = &JETI_EX_SENSOR__DESCR("glowplug 0", "", JETI_EX__TYPE_14b, 0),
+  },
+#endif
 
 };
 
