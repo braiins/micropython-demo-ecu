@@ -70,6 +70,73 @@ def pipe__init(a):
 
         a.pipe_table_entry(pipe_setting)
 
+class LinearMapping(object):
+    def __init__(self, x2, x1, y2, y1):
+        self.k = (y2 - y1) / (x2 - x1)
+        self.q = y1 - (self.k * x1)
+
+    def map(self, x):
+        return self.k * x + self.q
+
+def mixture__init_controller():
+    #    mixture_pid = Pid(sample_time_ms=conf['mixture']['sample_time_ms'])
+    mixture_pid = Pid(sample_time_ms=50)
+    lean_srv_limit = conf['mixture']['lean']
+    rich_srv_limit = conf['mixture']['rich']
+
+    # Mixture control is a reverse process -> when the current
+    # temperature is higher than desired, we have to make the mixture
+    # richer. This is true only iff lean_srv_limit < rich_srv_limit
+    # TODO: this has to be called before set_pid_params -> fix PID
+    # implementation accordingly
+    if lean_srv_limit < rich_srv_limit:
+        mixture_pid.set_output_direction(reverse_direction=True)
+
+    mixture_pid.set_pid_params(conf['mixture']['pid']['kp'],
+                               conf['mixture']['pid']['ki'],
+                               conf['mixture']['pid']['kd'])
+    # Set PID limits based on physical servo limits
+    mixture_pid.set_output_limits(min(lean_srv_limit, rich_srv_limit),
+                                  max(lean_srv_limit, rich_srv_limit))
+    mixture_pid.setpoint = conf['mixture']['temp_setpoint']
+    setpoint_range = conf['mixture']['temp_range']
+    mixture_ctl_2_setpoint = LinearMapping(rich_srv_limit, lean_srv_limit,
+                                           mixture_pid.setpoint + setpoint_range,
+                                           mixture_pid.setpoint - setpoint_range)
+
+    mixture_ctl_2_mixture = LinearMapping(rich_srv_limit, lean_srv_limit, 100, 0)
+
+    return (mixture_pid, mixture_ctl_2_setpoint, mixture_ctl_2_mixture)
+
+def mixture__recalculate_setpoint(a, rc_channels):
+    """Recalculates temperature setpoint based on user setting
+    """
+    # fetch setting of the potentionmeter on the remote controller
+    mixture_ctl = rc_channels[conf['channels']['mixture_ctl']]
+    mixture_pid.setpoint = mixture_ctl_2_setpoint.map(mixture_ctl)
+
+def mixture__control_temp(a, now, rc_channels):
+    (discard1, exhaust_temp, cold_junction, discard2, discard3) = a.tc_temp()
+    mixture_pid.curr_input = exhaust_temp
+    print('MIX: autoswitch:%s currlevel: %s, conflevel: %s' % (
+        conf['channels']['mixture_auto_switch'],
+        rc_channels[conf['channels']['mixture_auto_switch']],
+        conf['ctl_switch_levels'][1]
+    ))
+    # Enable/disable automatic mode of the PID controller
+    if rc_channels[conf['channels']['mixture_auto_switch']] > \
+       conf['ctl_switch_levels'][1]:
+        mixture__recalculate_setpoint(a, rc_channels)
+        mixture_pid.enable_auto_mode()
+        mixture_pid.compute(now)
+    else:
+        # In manual mode copy user output value to the PID, so that it
+        # is always ready for automatic mode
+        mixture_pid.disable_auto_mode()
+        mixture_pid.output = rc_channels[conf['channels']['mixture_ctl']]
+
+    a.set_mixture_valve(int(mixture_pid.output))
+
 print('XFFBAZOQBooting ECU logger')
 print(bsp.sd_config)
 # Temporary workaround - receiver configuration - RX polarity pin has to be
@@ -87,6 +154,8 @@ log_id = get_new_log_id()
 print('Starting application')
 a = app.get()
 pipe__init(a)
+(mixture_pid, mixture_ctl_2_setpoint, mixture_ctl_2_mixture) \
+    = mixture__init_controller()
 
 # Starting logging telemetry data
 log_file = None
@@ -103,15 +172,11 @@ write_csv(log_file,
            'tc1 status',
            'tc1[C]',
            'tc1_cold_junction[C]',
-           'rudder(1)',
-           'mixture(2)',
-           'throttle(3)',
-           'ctrim(4)',
-           'boost(5)',
-           'aux(6)',
-           'auto_pipe(7)',
-           'aux(8)',
-           'pipe-idx',
+           'exh temp. setpoint',
+           'mixture output',
+           'mixture_auto'] +
+          list(conf['channels'].keys()) +
+          ['pipe-idx',
            'last-rpm',
            'dec-rpm',
            'gps_fix',
@@ -135,6 +200,7 @@ while True:
     data = [time_stamp, a.rpm()]
     temp1 = list(a.tc_temp())
     data.extend(temp1[0:3])
+    data.extend([mixture_pid.setpoint, mixture_pid.output, mixture_pid.auto_mode])
     rc_channels = list(a.rc_channels())
     data.extend(rc_channels[0:8])
     pipe_length_telem_data = list(a.pipe_length_telem_data())
@@ -149,7 +215,12 @@ while True:
         lines_written = 0
 
     a.jeti_ex_sensors((a.rpm(), int(speed*10), int(temp1[1]*10),
-                      pipe_length_telem_data[0], rc_channels[1]))
+                       int(mixture_pid.setpoint*10),
+                       int(mixture_ctl_2_mixture.map(mixture_pid.output) * 10),
+                       pipe_length_telem_data[0]))
+
+    mixture__control_temp(a, hal.millis(), rc_channels)
+
     # Sleep for the rest of this 20ms slot
     hal.sleep_until_ms(time_stamp, 20)
 

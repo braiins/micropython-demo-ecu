@@ -28,6 +28,7 @@ void micropython_task_method(void *unused) {
     mp_hal_init();
     upy_hal__init();
 
+    pyexec_frozen_module("pid");
     pyexec_frozen_module("boot");
     // main script is finished, so now go into REPL mode.
     // the REPL mode can change, or it can request a soft reset.

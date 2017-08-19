@@ -122,7 +122,6 @@ static struct jeti_ex_sensor jeti_ex_sensors[] = {
     .value = 0,
     .descr = &JETI_EX_SENSOR__DESCR("egt", "\xb0\x43", JETI_EX__TYPE_14b, 1),
   },
-#if 0
   {
     .value = 0,
     .descr = &JETI_EX_SENSOR__DESCR("temp. A", "Cels.", JETI_EX__TYPE_14b, 1),
@@ -131,7 +130,6 @@ static struct jeti_ex_sensor jeti_ex_sensors[] = {
     .value = 0,
     .descr = &JETI_EX_SENSOR__DESCR("mixture", "%", JETI_EX__TYPE_14b, 1),
   },
-#endif
   {
     .value = 0,
     .descr = &JETI_EX_SENSOR__DESCR("pipe", "%", JETI_EX__TYPE_14b, 0),
