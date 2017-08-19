@@ -4,6 +4,7 @@ import bsp
 import uio
 import app
 import sys
+import ujson
 
 mount_path = "/mnt"
 counter_path = "%s/counter" % mount_path
@@ -15,25 +16,59 @@ def write_csv(out_file, list):
     if out_file is not None:
         count = out_file.write(line)
 
-def pipe__init(a):
-    conf_path = '%s/pipe.cfg' % mount_path
-    with uio.open(conf_path, 'r') as conf:
-        content = conf.readlines()
+def mount_sd_card():
+    sd = hal.SD(1, bsp.sd_config)
+    hal.mount(sd, mount_path)
+    print('File system mounted: %s' % mount_path)
 
-    pipe_ctl_channel = int(content[0])
-    full_throttle_threshold = int(content[1])
+def read_config():
+    conf_path = '%s/ecu.cfg' % mount_path
+    with uio.open(conf_path, 'r') as conf_file:
+        conf = ujson.loads(conf_file.readall())
+    return conf
+
+
+def get_new_log_id():
+    """Helper that creates a new unique ID on the SD card
+    """
+    log_id = 0
+    try:
+        f = uio.open(counter_path, 'r')
+    except OSError:
+        print("Log ID file doesn't exist, starting from 0")
+    else:
+        try:
+            log_id_str = f.readall()
+            log_id = int(log_id_str)
+        except ValueError as e:
+            print("Cannot read counter '%s' (%s), starting from 0" %
+                  (log_id_str, e))
+        else:
+            print('Closing counter file')
+            f.close()
+
+
+    new_log_id = log_id + 1
+    print('Writing next ID (%s) into counter file' % new_log_id)
+    with uio.open(counter_path, 'w') as f:
+        f.write('%s' % new_log_id)
+    print('Closing counter file')
+
+    return log_id
+
+def pipe__init(a):
+    pipe_ctl_channel = conf['channels']['pipe_ctl']
+    full_throttle_threshold = conf['pipe']['full_throttle_threshold']
     print('Setting tuned pipe control channel %s, full throttle @ %s' % (pipe_ctl_channel, full_throttle_threshold))
     a.pipe_ctl_channel(pipe_ctl_channel)
     a.full_throttle_threshold(full_throttle_threshold)
 
     print('Reading tuned pipe configuration')
-    i = 0
-    for line in content[2:]:
-        pipe_setting = [i] + [int(x) for x in line.split()]
+    for idx, entry in enumerate(conf['pipe']['table']):
+        pipe_setting = [idx] + entry
         print('idx: %s rpm: %s length: %s' % (pipe_setting[0], pipe_setting[1], pipe_setting[2]))
 
         a.pipe_table_entry(pipe_setting)
-        i += 1
 
 print('XFFBAZOQBooting ECU logger')
 print(bsp.sd_config)
@@ -44,35 +79,10 @@ print('Configuring RX polarity pin')
 rx_pol = hal.GPIO_PIN(bsp.rx_polarity)
 rx_pol.write(0)
 
-
-sd = hal.SD(1, bsp.sd_config)
-hal.mount(sd, mount_path)
-print('File system mounted: %s' % mount_path)
-
-
-log_id = 0
-try:
-    f = uio.open(counter_path, 'r')
-except OSError:
-    print("Log ID file doesn't exist, starting from 0")
-else:
-    try:
-        log_id_str = f.readall()
-        log_id = int(log_id_str)
-    except ValueError as e:
-        print("Cannot read counter '%s' (%s), starting from 0" %
-              (log_id_str, e))
-    else:
-        print('Closing counter file')
-        f.close()
-
-
-new_log_id = log_id + 1
-print('Writing next ID (%s) into counter file' % new_log_id)
-f = uio.open(counter_path, 'w')
-f.write('%s' % new_log_id)
-print('Closing counter file')
-f.close()
+# Initialization
+mount_sd_card()
+conf = read_config()
+log_id = get_new_log_id()
 
 print('Starting application')
 a = app.get()
