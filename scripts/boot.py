@@ -21,15 +21,33 @@ def mount_sd_card():
     hal.mount(sd, mount_path)
     print('File system mounted: %s' % mount_path)
 
-def read_config():
-    conf_path = '%s/ecu.cfg' % mount_path
+def read_and_archive_config(log_id):
+    """Reads ECU configuration and creates an archive of the config.
+
+    The archive is useful for determining what was the actual
+    configuration for a particular logging session.
+    """
+    conf_path_fmt = '%s/ecu%s.cfg'
+    conf_path = conf_path_fmt % (mount_path, '')
+    # ECU configuration archive contains log id in the name
+    conf_path_archive = conf_path_fmt % (mount_path, log_id)
     with uio.open(conf_path, 'r') as conf_file:
-        conf = ujson.loads(conf_file.readall())
+        conf_data = conf_file.readall()
+        conf = ujson.loads(conf_data)
+    # copy the data into a new file
+    with uio.open(conf_path_archive, 'w') as conf_archive:
+        conf_archive.write(conf_data)
+
     return conf
 
 
 def get_new_log_id():
     """Helper that creates a new unique ID on the SD card
+
+    Reads the basic counter value from the counter stored on the SD
+    card
+
+    @return 4 digit unique log ID string
     """
     log_id = 0
     try:
@@ -54,7 +72,7 @@ def get_new_log_id():
         f.write('%s' % new_log_id)
     print('Closing counter file')
 
-    return log_id
+    return '%04d' % log_id
 
 def pipe__init(a):
     pipe_ctl_channel = conf['channels']['pipe_ctl']
@@ -148,8 +166,8 @@ rx_pol.write(0)
 
 # Initialization
 mount_sd_card()
-conf = read_config()
 log_id = get_new_log_id()
+conf = read_and_archive_config(log_id)
 
 print('Starting application')
 a = app.get()
@@ -160,7 +178,7 @@ pipe__init(a)
 # Starting logging telemetry data
 log_file = None
 try:
-    log_file_path = '%s/log-%d.csv' % (mount_path, log_id)
+    log_file_path = '%s/log-%s.csv' % (mount_path, log_id)
     log_file = uio.open(log_file_path, 'a')
 except Exception as e:
     print('Failed to open log file: %s, %s' % (log_file_path, e))
