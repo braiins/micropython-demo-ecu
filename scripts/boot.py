@@ -184,6 +184,8 @@ except Exception as e:
     print('Failed to open log file: %s, %s' % (log_file_path, e))
 
 print(log_file)
+# format all channel names sorted by channel ID for the CSV header
+rc_channel_names = ['%s' % ch[0] for ch in sorted(conf['channels'].items(), key=lambda i: i[1])]
 
 # populate thermocouple labels
 tc_columns_fmt = ['tc%s status', 'tc%s[C]', 'tc%s_cold_junction[C]']
@@ -199,8 +201,9 @@ write_csv(log_file,
           [
            'exh temp. setpoint',
            'mixture output',
-           'mixture_auto'] +
-          list(conf['channels'].keys()) +
+           'mixture_auto',
+          ] +
+          rc_channel_names +
           ['pipe-idx',
            'last-rpm',
            'dec-rpm',
