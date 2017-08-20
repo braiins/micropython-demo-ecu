@@ -224,7 +224,8 @@ while True:
         log_file.flush()
         lines_written = 0
 
-    a.jeti_ex_sensors((a.rpm(), int(speed*10), int(temp1[1]*10),
+    a.jeti_ex_sensors((a.rpm(), int(speed*10), int(temp[0][1]*10),
+                       int(temp[1][1]*10),
                        int(mixture_pid.setpoint*10),
                        int(mixture_ctl_2_mixture.map(mixture_pid.output) * 10),
                        pipe_length_telem_data[0]))
