@@ -389,7 +389,9 @@ void app__engine_control_task(struct app *self)
   while (1) {
     now = task__sleep_until(now,
                             TIME__MS_TO_OS_TICKS(10));
-    unsigned int rpm = rpm__get(&self->rpm);
+    /* TODO: Simple low-pass filter for the RPM, analyze the collected
+     * data and design a proper low-pass filter */
+    rpm = (75 * rpm + 25 * rpm__get(&self->rpm)) / 100;
 
     if (self->pipe_ctl_channel_num != -1) {
       bool auto_control = false;
