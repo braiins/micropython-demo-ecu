@@ -16,8 +16,9 @@
 #include "micropython-freertos-hal/gpio/upy_gpio_pin.h"
 #include "micropython-freertos-hal/sd/upy_sd.h"
 
+#include "app.h"
 #include "config.app.h"
-
+/**/
 
 /** REPL */
 /* REPL console, USART1 console, RX: port A, pin 10; TX: port B, pin 6 */
@@ -45,21 +46,6 @@ PLATFORM_UART_CONFIG__INIT_GPIO_CFG(4, A, 1, 8, A, 0, 8);
 const struct platform_gpio_config gps_enable_pin_cfg =
   PLATFORM_GPIO_CONFIG__INIT(A, GPIO_PIN_0, GPIO_MODE_OUTPUT_PP, GPIO_NOPULL,
                              GPIO_SPEED_FREQ_HIGH, 0);
-
-/** Thermocouple/temperature */
-#if 0
-/* MAX6675 SCK pin */
-const struct platform_gpio_config tc_clock_pin_cfg =
-  PLATFORM_GPIO_CONFIG__INIT_GPIO(F, 2, _8MA, STD_WPU, OUT);
-/* MAX6675 CS pin */
-const struct platform_gpio_config tc_cs_pin_cfg =
-  PLATFORM_GPIO_CONFIG__INIT_GPIO(A, 0, GPIO_PIN_0, GPIO_MODE_OUTPUT_PP,
-                                  GPIO_NOPULL, GPIO_SPEED_FREQ_HIGH, 0);
-/* MAX6675 SO pin */
-const struct platform_gpio_config tc_data_pin_cfg =
-  PLATFORM_GPIO_CONFIG__INIT_GPIO(A, 0, GPIO_PIN_0, GPIO_MODE_INPUT,
-                                  GPIO_NOPULL, GPIO_SPEED_FREQ_HIGH, 0);
-#endif
 
 
 /* Configuration for PWM channels for servos */
@@ -125,6 +111,30 @@ STATIC const mp_rom_map_elem_t bsp_module_globals_table[] = {
 };
 STATIC MP_DEFINE_CONST_DICT(bsp_module_globals, bsp_module_globals_table);
 
+/**
+ * Thermocouple pins
+ *
+ * Both thermocouples share Clk and Data In pins and have a separate
+ * chip select pin
+ */
+const struct app__platform_settings_tc_pins tc_pins[] = {
+  {
+    .cs = UPY_GPIO_PIN__ROM_PTR(tc_cs1),
+    .clk = UPY_GPIO_PIN__ROM_PTR(tc_clk),
+    .data_in = UPY_GPIO_PIN__ROM_PTR(tc_data_in),
+  },
+  {
+    .cs = UPY_GPIO_PIN__ROM_PTR(tc_cs2),
+    .clk = UPY_GPIO_PIN__ROM_PTR(tc_clk),
+    .data_in = UPY_GPIO_PIN__ROM_PTR(tc_data_in),
+  }
+};
+
+/* Verify in compile time that the number of TC pin configurations is
+ * at least as big as the user configured number of TC's */
+ASSERT__COMPILE_TIME_PURE(APP_THERMOCOUPLE_SENSOR_COUNT,
+                          (sizeof(tc_pins)/sizeof(struct app__platform_settings_tc_pins)) >=
+                          CONFIG_APP_THERMOCOUPLE_SENSOR_COUNT);
 
 /** BSP module  */
 const mp_obj_module_t bsp_module = {

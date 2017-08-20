@@ -116,7 +116,7 @@ def mixture__recalculate_setpoint(a, rc_channels):
     mixture_pid.setpoint = mixture_ctl_2_setpoint.map(mixture_ctl)
 
 def mixture__control_temp(a, now, rc_channels):
-    (discard1, exhaust_temp, cold_junction, discard2, discard3) = a.tc_temp()
+    (discard1, exhaust_temp, cold_junction, discard2, discard3) = a.tc_temp(0)
     mixture_pid.curr_input = exhaust_temp
     print('MIX: autoswitch:%s currlevel: %s, conflevel: %s' % (
         conf['channels']['mixture_auto_switch'],
@@ -166,12 +166,19 @@ except Exception as e:
     print('Failed to open log file: %s, %s' % (log_file_path, e))
 
 print(log_file)
+
+# populate thermocouple labels
+tc_columns_fmt = ['tc%s status', 'tc%s[C]', 'tc%s_cold_junction[C]']
+tc_columns = []
+for i in range(0, 2):
+    tc_columns += [l % i for l in tc_columns_fmt]
+
 write_csv(log_file,
           ['timestamp[ms]',
            'rpm',
-           'tc1 status',
-           'tc1[C]',
-           'tc1_cold_junction[C]',
+          ] +
+          tc_columns +
+          [
            'exh temp. setpoint',
            'mixture output',
            'mixture_auto'] +
@@ -198,8 +205,11 @@ while True:
     (fix, sig, speed, lat, lon, elv, direction, pdop, hdop, vdop) = \
         a.gps()
     data = [time_stamp, a.rpm()]
-    temp1 = list(a.tc_temp())
-    data.extend(temp1[0:3])
+    temp = []
+    for i in range(0, 2):
+        temp.append(a.tc_temp(i))
+        data.extend(list(temp[i])[0:3])
+
     data.extend([mixture_pid.setpoint, mixture_pid.output, mixture_pid.auto_mode])
     rc_channels = list(a.rc_channels())
     data.extend(rc_channels[0:8])

@@ -17,7 +17,7 @@ env.QstrFeatureObject(source=['app.c'])
 
 
 board_path = os.path.join('board', env['CONFIG'].BSP_TARGET)
-env.Append(CPPPATH=board_path)
+env.Append(CPPPATH=os.path.realpath(board_path))
 
 env.FeatureSConscript(dirs=[board_path])
 

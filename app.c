@@ -92,10 +92,7 @@ int app__init(struct app *self)
 }
 
 extern const struct platform_gpio_config gps_enable_pin_cfg;
-extern const upy_gpio_pin__obj_t upy_gpio_pin__tc_clk;
-extern const upy_gpio_pin__obj_t upy_gpio_pin__tc_cs1;
-extern const upy_gpio_pin__obj_t upy_gpio_pin__tc_cs2;
-extern const upy_gpio_pin__obj_t upy_gpio_pin__tc_data_in;
+extern const struct app__platform_settings_tc_pins tc_pins[];
 
 /*
 extern const struct platform_adc_config temp1_sensor_adc_cfg;
@@ -164,11 +161,59 @@ enum {
 static uint8_t ex_msg[JETI_EX__MAX_MESSAGE_SIZE];
 
 
+/**
+ * Initializes all thermocouple converters
+ *
+ * Each thermocouple converter is associated with a backend that takes
+ * care of communicating with it
+ *
+ * @private
+ * @memberof app
+ * @param *self
+ */
+static void app__init_thermocouple(struct app *self)
+{
+  unsigned int i;
+  /* Backend GPIO driver for MAXIM thermocouple-digital-converters */
+  struct ic_max_tcdc_backend *tc_backend;
+
+  for (i = 0; i < CONFIG_APP_THERMOCOUPLE_SENSOR_COUNT; i++) {
+    /* Initialize the GPIO backend for thermocouple converter */
+    tc_backend = ic_max_tcdc_backend__new(&tc_pins[i].cs->pin->config,
+                                          &tc_pins[i].clk->pin->config,
+                                          &tc_pins[i].data_in->pin->config);
+    assert_ptr(tc_backend);
+    self->tc[i] = ic_max31855__new(tc_backend);
+    assert_ptr(self->tc[i]);
+  }
+}
+
+
+/**
+ * Read all configured thermocouples
+ *
+ * @private
+ * @memberof app
+ * @param *self
+ */
+static void app__read_thermocouple(struct app *self)
+{
+  unsigned int i;
+
+  for (i = 0; i < CONFIG_APP_THERMOCOUPLE_SENSOR_COUNT; i++) {
+    self->telemetry_data.tc[i].temp_status =
+      ic_max31855__read_temp_float(self->tc[i],
+                                   (float*)&self->telemetry_data.
+                                   tc[i].temp_float,
+                                   (float*)&self->telemetry_data.
+                                   tc[i].junction_temp_float);
+  }
+}
+
+
 void app__sensors_task(struct app *self)
 {
   const struct gpio_pin *gps_enable_pin;
-  /* Backend GPIO driver for MAXIM thermocouple-digital-converters */
-  struct ic_max_tcdc_backend *tc_backend;
   struct jeti_ex *jeti_ex;
   time__os_tick_t now, last_slow_sensors_sample_time, last_telem_labels_tx_time;
   /* NTC connected ADC */
@@ -184,13 +229,7 @@ void app__sensors_task(struct app *self)
                                gps_enable_pin);
   assert_ptr(self->gps);
 
-  /* Initialize the GPIO backend for thermocouple converter */
-  tc_backend = ic_max_tcdc_backend__new(&upy_gpio_pin__tc_cs1.pin->config,
-                                        &upy_gpio_pin__tc_clk.pin->config,
-                                        &upy_gpio_pin__tc_data_in.pin->config);
-  assert_ptr(tc_backend);
-  self->tc = ic_max31855__new(tc_backend);
-  assert_ptr(self->tc);
+  app__init_thermocouple(self);
 
   jeti_ex = jeti_ex__new(jeti_ex_sensors, APP__JETI_EX_SENSOR_COUNT, 0xa400,
                          0x0001);
@@ -219,24 +258,11 @@ void app__sensors_task(struct app *self)
     size_t ex_msg_len;
     ic_gtpa_010__read(self->gps);
     now = time__get_os_tick_count();
-    /*ic_max31855__read_temp_float(self->tc, &self->tc_temp_float);*/
     if (time__is_after_eq(now, last_slow_sensors_sample_time +
                           TIME__MS_TO_OS_TICKS(CONFIG_APP_SENSORS_SLOW_SAMPLE_PERIOD_MS))) {
       last_slow_sensors_sample_time = now;
-#if 0
-      self->telemetry_data.tc_temp_status =
-        ic_max31855__read_temp_fixed(self->tc,
-                                     (int32_t*)&self->telemetry_data
-                                       .tc_temp_fixed,
-                                     (int32_t*)&self->telemetry_data
-                                       .tc_junction_temp_fixed);
-#endif
-      self->telemetry_data.tc_temp_status =
-        ic_max31855__read_temp_float(self->tc,
-                                     (float*)&self->telemetry_data
-                                       .tc_temp_float,
-                                     (float*)&self->telemetry_data
-                                       .tc_junction_temp_float);
+
+      app__read_thermocouple(self);
 #if 0
       self->telemetry_data.ntc_thermistor_status =
         ntc_thermistor__read(temp1_sensor, &temp);
@@ -347,6 +373,7 @@ void app__engine_control_task(struct app *self)
   time__os_tick_t now;
   unsigned int last_pipe_rpm = 0;
   int last_pipe_length_idx = 0;
+  unsigned int rpm = 0;
 
   self->pipe_length_idx = 0;
 
@@ -432,24 +459,34 @@ STATIC MP_DEFINE_CONST_FUN_OBJ_1(app__get_rpm_obj, app__get_rpm);
 
 
 /**
- * \method tc_temp1()
+ * \method tc_temp()
  *
  * Return value: Current RPM value
  */
-STATIC mp_obj_t app__get_tc_temp(mp_obj_t self_in)
+STATIC mp_obj_t app__get_tc_temp(mp_obj_t self_in, mp_obj_t idx_int)
 {
+  mp_int_t idx;
   app__obj_t *self = MP_OBJ_TO_PTR(self_in);
+
+  idx = mp_obj_get_int(idx_int);
+
+  if ((idx < 0) || (idx >= CONFIG_APP_THERMOCOUPLE_SENSOR_COUNT)) {
+      nlr_raise(mp_obj_new_exception_msg_varg(&mp_type_ValueError,
+                                              "TC index out of valid range (0..%d)",
+                                              CONFIG_APP_THERMOCOUPLE_SENSOR_COUNT - 1));
+  }
+
   mp_obj_t tuple[] = {
-    mp_obj_new_int(self->app.telemetry_data.tc_temp_status),
-    mp_obj_new_float(self->app.telemetry_data.tc_temp_float),
-    mp_obj_new_float(self->app.telemetry_data.tc_junction_temp_float),
-    mp_obj_new_int(self->app.telemetry_data.tc_temp_fixed),
-    mp_obj_new_int(self->app.telemetry_data.tc_junction_temp_fixed),
+    mp_obj_new_int(self->app.telemetry_data.tc[idx].temp_status),
+    mp_obj_new_float(self->app.telemetry_data.tc[idx].temp_float),
+    mp_obj_new_float(self->app.telemetry_data.tc[idx].junction_temp_float),
+    mp_obj_new_int(self->app.telemetry_data.tc[idx].temp_fixed),
+    mp_obj_new_int(self->app.telemetry_data.tc[idx].junction_temp_fixed),
   };
 
   return mp_obj_new_tuple(sizeof(tuple)/sizeof(mp_obj_t), tuple);
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_1(app__get_tc_temp_obj, app__get_tc_temp);
+STATIC MP_DEFINE_CONST_FUN_OBJ_2(app__get_tc_temp_obj, app__get_tc_temp);
 
 
 /**

@@ -23,6 +23,9 @@
 #include <lib-ic/gps/ic_gtpa_010.h>
 #include <lib-ic/thermocouple/ic_max31855.h>
 
+/* Micropython HAL includes */
+#include "micropython-freertos-hal/gpio/upy_gpio_pin.h"
+
 struct pipe_control {
   unsigned int rpm;
   int srv_position;
@@ -58,7 +61,7 @@ struct app {
   struct tm_logger logger;
 
   /** Thermocouple temperature measurement */
-  struct ic_max31855 *tc;
+  struct ic_max31855 *tc[CONFIG_APP_THERMOCOUPLE_SENSOR_COUNT];
 
   /** Servo instance for controlling the needle valve */
   struct servo *mixture_srv;
@@ -72,18 +75,35 @@ struct app {
   int pipe_length_idx;
 
   unsigned int deciding_rpm, last_pipe_rpm;
+  /** Temperature values measured from all thermocouples */
   volatile struct {
-    int32_t tc_temp_fixed;
-    int32_t tc_junction_temp_fixed;
-    float tc_temp_float;
-    float tc_junction_temp_float;
-    int tc_temp_status;
+    struct {
+      int32_t temp_fixed;
+      int32_t junction_temp_fixed;
+      float temp_float;
+      float junction_temp_float;
+      int temp_status;
+    } tc[CONFIG_APP_THERMOCOUPLE_SENSOR_COUNT];
 
     /** Temperature from the NTC 10k thermistor */
     int32_t ntc_thermistor_temp;
     int ntc_thermistor_status;
   } telemetry_data;
 
+};
+
+
+/**
+ * Grouping for each thermocouple converter
+ * @memberof app
+ */
+struct app__platform_settings_tc_pins {
+  /** Chip Select */
+  const upy_gpio_pin__obj_t *cs;
+  /** Clock */
+  const upy_gpio_pin__obj_t *clk;
+  /** Data in pin configuration (RX) */
+  const upy_gpio_pin__obj_t *data_in;
 };
 
 

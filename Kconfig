@@ -28,6 +28,10 @@ config APP_GPS_UART_BAUD
 
 config APP_SENSORS_SLOW_SAMPLE_PERIOD_MS
        int "Sampling period for slow sensors"
+
+config APP_THERMOCOUPLE_SENSOR_COUNT
+       int "Maximum number of supported thermcouple converters"
+       default 1
 endmenu
 
 
