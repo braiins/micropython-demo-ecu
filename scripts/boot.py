@@ -201,6 +201,9 @@ write_csv(log_file,
           [
            'exh temp. setpoint',
            'mixture output',
+           'mixture P',
+           'mixture I',
+           'mixture D',
            'mixture_auto',
           ] +
           rc_channel_names +
@@ -230,8 +233,8 @@ while True:
     for i in range(0, 2):
         temp.append(a.tc_temp(i))
         data.extend(list(temp[i])[0:3])
-
-    data.extend([mixture_pid.setpoint, mixture_pid.output, mixture_pid.auto_mode])
+    data.extend([mixture_pid.setpoint, mixture_pid.output, mixture_pid.p_term,
+                 mixture_pid.i_term, mixture_pid.d_term, mixture_pid.auto_mode])
     rc_channels = list(a.rc_channels())
     data.extend(rc_channels[0:8])
     pipe_length_telem_data = list(a.pipe_length_telem_data())

@@ -18,8 +18,11 @@ class Pid(object):
         self.output = 0
         self.output_min = self.output_max = 0
         self.setpoint = 0
-
+        # P-term and D-term are only for debugging purposes to
+        # investigate the state of the controller
+        self.p_term = 0
         self.i_term = 0
+        self.d_term = 0
 
         self.kp = self.ki = self.kd = 0
 
@@ -49,7 +52,9 @@ class Pid(object):
             d_input = self.curr_input - self.last_input
 
             # Calculate the PID output
-            self.output = self.kp * error + self.i_term - self.kd * d_input
+            self.p_term = self.kp * error
+            self.d_term = self.kd * d_input
+            self.output = self.p_term + self.i_term - self.d_term
             self.clamp_output()
 
             # store input variables and sample time stamp for the next iteration
