@@ -423,15 +423,18 @@ void app__engine_control_task(struct app *self)
       } else {
         app__calculate_longer_pipe(self, rpm);
       }
+      /* This is for the data logger to have a consistent snapshot of
+       * the RPM values for showing when/where the pipe moving
+       * algorithm has moved the pipe */
       if (last_pipe_length_idx != self->pipe_length_idx) {
         self->last_pipe_rpm = last_pipe_rpm;
         self->deciding_rpm = rpm;
         last_pipe_rpm = rpm;
-        if (auto_control) {
-          servo__set_position(pipe_srv,
-                              self->pipe_table[self->pipe_length_idx].srv_position);
-        }
       }
+      if (auto_control) {
+        servo__set_position(pipe_srv,
+                            self->pipe_table[self->pipe_length_idx].srv_position);
+        }
 
     }
   }
